@@ -11,20 +11,20 @@ NC='\033[0m' # No Color
 if [ "$1" == "--uninstall" ]; then
     echo -e "${RED}Uninstalling MTHAN VPS...${NC}"
     
-    if systemctl is-active --quiet mthan-vps.service; then
+    if systemctl is-active --quiet app.service; then
         echo "Stopping service..."
-        systemctl stop mthan-vps.service
+        systemctl stop app.service
     fi
     
-    if [ -f /etc/systemd/system/mthan-vps.service ]; then
+    if [ -f /etc/systemd/system/app.service ]; then
         echo "Disabling and removing service..."
-        systemctl disable mthan-vps.service
-        rm /etc/systemd/system/mthan-vps.service
+        systemctl disable app.service
+        rm /etc/systemd/system/app.service
         systemctl daemon-reload
     fi
     
     echo "Removing application binary..."
-    rm -f /root/.mthan/vps/mthan-vps
+    rm -f /root/.mthan/vps/app
     
     # Optional: Purge data?
     # rm -rf /root/.mthan/vps/data
@@ -72,25 +72,24 @@ if [ ! -f "$TEMP_DIR/vps/app" ]; then
     exit 1
 fi
 
-mv "$TEMP_DIR/vps/app" /root/.mthan/vps/mthan-vps
-chmod +x /root/.mthan/vps/mthan-vps
+mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
+chmod +x /root/.mthan/vps/app
 
 # Cleanup clone
 rm -rf "$TEMP_DIR"
 
 # 4. Create systemd service
 echo "Configuring systemd service..."
-cat <<EOF > /etc/systemd/system/mthan-vps.service
+cat <<EOF > /etc/systemd/system/app.service
 [Unit]
 Description=MTHAN VPS
 After=network.target
 
 [Service]
-ExecStart=/root/.mthan/vps/mthan-vps
+ExecStart=/root/.mthan/vps/app
 WorkingDirectory=/root/.mthan/vps
 Restart=always
 User=root
-Environment=APP_ENV=production
 
 [Install]
 WantedBy=multi-user.target
@@ -99,14 +98,14 @@ EOF
 # 5. Reload daemon and handle service start/restart
 echo "Applying service changes..."
 systemctl daemon-reload
-systemctl enable mthan-vps.service
+systemctl enable app.service
 
-if systemctl is-active --quiet mthan-vps.service; then
-    echo "Restarting mthan-vps.service..."
-    systemctl restart mthan-vps.service
+if systemctl is-active --quiet app.service; then
+    echo "Restarting app.service..."
+    systemctl restart app.service
 else
-    echo "Starting mthan-vps.service..."
-    systemctl start mthan-vps.service
+    echo "Starting app.service..."
+    systemctl start app.service
 fi
 # 6. Generate/Read config and show message
 CONFIG_FILE="/root/.mthan/vps/config.yaml"
