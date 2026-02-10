@@ -96,11 +96,18 @@ Environment=APP_ENV=production
 WantedBy=multi-user.target
 EOF
 
-# 5. Reload daemon and enable --now
-echo "Starting service..."
+# 5. Reload daemon and handle service start/restart
+echo "Applying service changes..."
 systemctl daemon-reload
-systemctl enable --now mthan-vps.service
+systemctl enable mthan-vps.service
 
+if systemctl is-active --quiet mthan-vps.service; then
+    echo "Restarting mthan-vps.service..."
+    systemctl restart mthan-vps.service
+else
+    echo "Starting mthan-vps.service..."
+    systemctl start mthan-vps.service
+fi
 # 6. Generate/Read config and show message
 CONFIG_FILE="/root/.mthan/vps/config.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
