@@ -7,6 +7,34 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# --- UNINSTALL LOGIC ---
+if [ "$1" == "--uninstall" ]; then
+    echo -e "${RED}Uninstalling MTHAN VPS...${NC}"
+    
+    if systemctl is-active --quiet mthan-vps.service; then
+        echo "Stopping service..."
+        systemctl stop mthan-vps.service
+    fi
+    
+    if [ -f /etc/systemd/system/mthan-vps.service ]; then
+        echo "Disabling and removing service..."
+        systemctl disable mthan-vps.service
+        rm /etc/systemd/system/mthan-vps.service
+        systemctl daemon-reload
+    fi
+    
+    echo "Removing application binary..."
+    rm -f /root/.mthan/vps/mthan-vps
+    
+    # Optional: Purge data?
+    # rm -rf /root/.mthan/vps/data
+    
+    echo -e "${GREEN}MTHAN VPS has been uninstalled.${NC}"
+    exit 0
+fi
+
+# --- INSTALL LOGIC ---
+
 echo -e "${BLUE}============================================${NC}"
 echo -e "${BLUE}   MTHAN VPS INSTALLER${NC}"
 echo -e "${BLUE}============================================${NC}"
@@ -88,7 +116,9 @@ fi
 USERNAME=$(grep "username:" "$CONFIG_FILE" | cut -d' ' -f2)
 PASSWORD=$(grep "password:" "$CONFIG_FILE" | cut -d' ' -f2)
 PORT=$(grep "port:" "$CONFIG_FILE" | cut -d' ' -f2)
-IP=$(curl -s https://ifconfig.me || echo "YOUR_SERVER_IP")
+
+# Improved IP detection (Force IPv4)
+IP=$(curl -s -4 https://ifconfig.me || curl -s -4 https://api.ipify.org || echo "YOUR_SERVER_IP")
 
 echo -e "\n${GREEN}============================================${NC}"
 echo -e "${GREEN}   INSTALLATION COMPLETE${NC}"
@@ -97,4 +127,5 @@ echo -e "URL:        http://${IP}:${PORT}"
 echo -e "Username:   $USERNAME"
 echo -e "Password:   $PASSWORD"
 echo -e "${GREEN}============================================${NC}"
+echo -e "To uninstall, run: ./install.sh --uninstall"
 echo -e "IMPORTANT: Ensure port ${PORT} is open in your cloud firewall.\n"
