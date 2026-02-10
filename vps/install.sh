@@ -11,15 +11,15 @@ NC='\033[0m' # No Color
 if [ "$1" == "--uninstall" ]; then
     echo -e "${RED}Uninstalling MTHAN VPS...${NC}"
     
-    if systemctl is-active --quiet app.service; then
+    if systemctl is-active --quiet mthan-vps.service; then
         echo "Stopping service..."
-        systemctl stop app.service
+        systemctl stop mthan-vps.service
     fi
     
-    if [ -f /etc/systemd/system/app.service ]; then
+    if [ -f /etc/systemd/system/mthan-vps.service ]; then
         echo "Disabling and removing service..."
-        systemctl disable app.service
-        rm /etc/systemd/system/app.service
+        systemctl disable mthan-vps.service
+        rm /etc/systemd/system/mthan-vps.service
         systemctl daemon-reload
     fi
     
@@ -82,7 +82,7 @@ rm -rf "$TEMP_DIR"
 
 # 4. Create systemd service
 echo "Configuring systemd service..."
-cat <<EOF > /etc/systemd/system/app.service
+cat <<EOF > /etc/systemd/system/mthan-vps.service
 [Unit]
 Description=MTHAN VPS
 After=network.target
@@ -100,14 +100,14 @@ EOF
 # 5. Reload daemon and handle service start/restart
 echo "Applying service changes..."
 systemctl daemon-reload
-systemctl enable app.service
+systemctl enable mthan-vps.service
 
-if systemctl is-active --quiet app.service; then
-    echo "Restarting app.service..."
-    systemctl restart app.service
+if systemctl is-active --quiet mthan-vps.service; then
+    echo "Restarting mthan-vps.service..."
+    systemctl restart mthan-vps.service
 else
-    echo "Starting app.service..."
-    systemctl start app.service
+    echo "Starting mthan-vps.service..."
+    systemctl start mthan-vps.service
 fi
 # 6. Generate/Read config and show message
 CONFIG_FILE="/root/.mthan/vps/config.yaml"
