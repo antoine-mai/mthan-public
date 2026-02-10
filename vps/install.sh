@@ -73,7 +73,9 @@ if [ ! -f "$TEMP_DIR/vps/app" ]; then
 fi
 
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
+cp "$TEMP_DIR/vps/install.sh" /root/.mthan/vps/uninstall.sh
 chmod +x /root/.mthan/vps/app
+chmod +x /root/.mthan/vps/uninstall.sh
 
 # Cleanup clone
 rm -rf "$TEMP_DIR"
@@ -133,5 +135,5 @@ echo -e "URL:        http://${IP}:${PORT}"
 echo -e "Username:   $USERNAME"
 echo -e "Password:   $PASSWORD"
 echo -e "${GREEN}============================================${NC}"
-echo -e "To uninstall, run: ./install.sh --uninstall"
+echo -e "To uninstall, run: /root/.mthan/vps/uninstall.sh --uninstall"
 echo -e "IMPORTANT: Ensure port ${PORT} is open in your cloud firewall.\n"
