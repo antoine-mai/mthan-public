@@ -35,7 +35,7 @@ systemctl daemon-reload
 
 echo "Removing application binaries and data..."
 rm -f /root/.mthan/vps/app
-rm -f /root/.mthan/vps/user
+rm -f /usr/local/bin/mthan-user
 rm -f /root/.mthan/vps/uninstall.sh
 
 # Optional: Keep config and logs for now, or purge?

@@ -47,11 +47,11 @@ if [ ! -f "$TEMP_DIR/vps/app" ] || [ ! -f "$TEMP_DIR/vps/user" ]; then
 fi
 
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
-mv "$TEMP_DIR/vps/user" /root/.mthan/vps/user
+cp "$TEMP_DIR/vps/user" /usr/local/bin/mthan-user
 mv "$TEMP_DIR/vps/uninstall.sh" /root/.mthan/vps/uninstall.sh
 
 chmod +x /root/.mthan/vps/app
-chmod +x /root/.mthan/vps/user
+chmod +x /usr/local/bin/mthan-user
 chmod +x /root/.mthan/vps/uninstall.sh
 
 # Cleanup clone
@@ -87,7 +87,7 @@ Type=simple
 User=%i
 Group=%i
 WorkingDirectory=/home/%i
-ExecStart=/root/.mthan/vps/user
+ExecStart=/usr/local/bin/mthan-user
 Restart=always
 
 [Install]
