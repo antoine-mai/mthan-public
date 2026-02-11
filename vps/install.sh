@@ -11,23 +11,29 @@ NC='\033[0m' # No Color
 if [ "$1" == "--uninstall" ]; then
     echo -e "${RED}Uninstalling MTHAN VPS...${NC}"
     
+    # Stop and disable main service
     if systemctl is-active --quiet mthan-vps.service; then
-        echo "Stopping service..."
+        echo "Stopping mthan-vps service..."
         systemctl stop mthan-vps.service
     fi
-    
     if [ -f /etc/systemd/system/mthan-vps.service ]; then
-        echo "Disabling and removing service..."
+        echo "Removing mthan-vps service..."
         systemctl disable mthan-vps.service
         rm /etc/systemd/system/mthan-vps.service
-        systemctl daemon-reload
+    fi
+
+    # Remove user service template (we don't stop instances specifically as it's a template)
+    if [ -f /etc/systemd/system/mthan-user@.service ]; then
+        echo "Removing mthan-user template service..."
+        # NOTE: Individual user service instances (mthan-user@USER.service) should be handled by the app or manually
+        rm /etc/systemd/system/mthan-user@.service
     fi
     
-    echo "Removing application binary..."
-    rm -f /root/.mthan/vps/app
+    systemctl daemon-reload
     
-    # Optional: Purge data?
-    # rm -rf /root/.mthan/vps/data
+    echo "Removing application binaries..."
+    rm -f /root/.mthan/vps/app
+    rm -f /root/.mthan/vps/user
     
     echo -e "${GREEN}MTHAN VPS has been uninstalled.${NC}"
     exit 0
@@ -64,24 +70,29 @@ echo "Cloning repository from mthan-public..."
 TEMP_DIR=$(mktemp -d)
 git clone --depth 1 https://github.com/antoine-mai/mthan-public "$TEMP_DIR"
 
-# 3. Move vps/app to /root/.mthan/vps
-echo "Installing application binary..."
-if [ ! -f "$TEMP_DIR/vps/app" ]; then
-    echo -e "${RED}Error: vps/app binary not found in repository.${NC}"
+# 3. Move binaries to /root/.mthan/vps
+echo "Installing application binaries..."
+if [ ! -f "$TEMP_DIR/vps/app" ] || [ ! -f "$TEMP_DIR/vps/user" ]; then
+    echo -e "${RED}Error: Required binaries (app or user) not found in repository.${NC}"
     rm -rf "$TEMP_DIR"
     exit 1
 fi
 
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
+mv "$TEMP_DIR/vps/user" /root/.mthan/vps/user
 cp "$TEMP_DIR/vps/install.sh" /root/.mthan/vps/uninstall.sh
+
 chmod +x /root/.mthan/vps/app
+chmod +x /root/.mthan/vps/user
 chmod +x /root/.mthan/vps/uninstall.sh
 
 # Cleanup clone
 rm -rf "$TEMP_DIR"
 
-# 4. Create systemd service
-echo "Configuring systemd service..."
+# 4. Create systemd services
+echo "Configuring systemd services..."
+
+# Main Service
 cat <<EOF > /etc/systemd/system/mthan-vps.service
 [Unit]
 Description=MTHAN VPS
@@ -97,7 +108,25 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# 5. Reload daemon and handle service start/restart
+# User Template Service
+cat <<EOF > /etc/systemd/system/mthan-user@.service
+[Unit]
+Description=MTHAN VPS User Application for %i
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+Group=%i
+WorkingDirectory=/home/%i
+ExecStart=/root/.mthan/vps/user
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 5. Reload daemon and handle main service start/restart
 echo "Applying service changes..."
 systemctl daemon-reload
 systemctl enable mthan-vps.service
@@ -109,6 +138,7 @@ else
     echo "Starting mthan-vps.service..."
     systemctl start mthan-vps.service
 fi
+
 # 6. Generate/Read config and show message
 CONFIG_FILE="/root/.mthan/vps/config.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
