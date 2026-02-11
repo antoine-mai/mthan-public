@@ -7,38 +7,6 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# --- UNINSTALL LOGIC ---
-if [ "$1" == "--uninstall" ]; then
-    echo -e "${RED}Uninstalling MTHAN VPS...${NC}"
-    
-    # Stop and disable main service
-    if systemctl is-active --quiet mthan-vps.service; then
-        echo "Stopping mthan-vps service..."
-        systemctl stop mthan-vps.service
-    fi
-    if [ -f /etc/systemd/system/mthan-vps.service ]; then
-        echo "Removing mthan-vps service..."
-        systemctl disable mthan-vps.service
-        rm /etc/systemd/system/mthan-vps.service
-    fi
-
-    # Remove user service template (we don't stop instances specifically as it's a template)
-    if [ -f /etc/systemd/system/mthan-user@.service ]; then
-        echo "Removing mthan-user template service..."
-        # NOTE: Individual user service instances (mthan-user@USER.service) should be handled by the app or manually
-        rm /etc/systemd/system/mthan-user@.service
-    fi
-    
-    systemctl daemon-reload
-    
-    echo "Removing application binaries..."
-    rm -f /root/.mthan/vps/app
-    rm -f /root/.mthan/vps/user
-    
-    echo -e "${GREEN}MTHAN VPS has been uninstalled.${NC}"
-    exit 0
-fi
-
 # --- INSTALL LOGIC ---
 
 echo -e "${BLUE}============================================${NC}"
@@ -80,7 +48,7 @@ fi
 
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
 mv "$TEMP_DIR/vps/user" /root/.mthan/vps/user
-cp "$TEMP_DIR/vps/install.sh" /root/.mthan/vps/uninstall.sh
+mv "$TEMP_DIR/vps/uninstall.sh" /root/.mthan/vps/uninstall.sh
 
 chmod +x /root/.mthan/vps/app
 chmod +x /root/.mthan/vps/user

@@ -43,7 +43,7 @@ Starting with Version 1.0.6, the ecosystem includes a dedicated **User Applicati
 To update your installation, simply run the installer command again. To completely remove MTHAN VPS and all associated services:
 
 ```bash
-/root/.mthan/vps/uninstall.sh --uninstall
+/root/.mthan/vps/uninstall.sh
 ```
 
 ---
