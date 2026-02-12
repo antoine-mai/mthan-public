@@ -126,11 +126,24 @@ PORT=$(grep "port:" "$CONFIG_FILE" | cut -d' ' -f2)
 # Improved IP detection (Force IPv4)
 IP=$(curl -s -4 https://ifconfig.me || curl -s -4 https://api.ipify.org || echo "YOUR_SERVER_IP")
 
+# 6. Configure Firewall
+echo "Configuring firewall..."
+if command -v ufw >/dev/null; then
+    if ufw status | grep -q "Status: active"; then
+        echo "Opening port $PORT in UFW..."
+        ufw allow "$PORT/tcp"
+    fi
+elif command -v firewall-cmd >/dev/null; then
+    echo "Opening port $PORT in firewalld..."
+    firewall-cmd --permanent --add-port="$PORT/tcp"
+    firewall-cmd --reload
+fi
+
 echo -e "\n${GREEN}============================================${NC}"
 echo -e "${GREEN}   INSTALLATION COMPLETE${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo -e "URL:        http://${IP}:${PORT}"
 echo -e "Username:   $USERNAME"
 echo -e "Password:   $PASSWORD"
-echo -e "To uninstall, run: /root/.mthan/vps/uninstall.sh --uninstall"
-echo -e "IMPORTANT: Ensure port ${PORT} is open in your cloud firewall.\n"
+echo -e "To uninstall, run: /root/.mthan/vps/uninstall.sh"
+echo -e "IMPORTANT: Ensure port ${PORT} is open in your cloud firewall (e.g., AWS/GCP/Azure console).\n"
