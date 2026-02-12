@@ -45,6 +45,10 @@ if [ -f /etc/systemd/system/mthan-vps.service ]; then
     rm /etc/systemd/system/mthan-vps.service
 fi
 
+# Stop all user services
+echo "Stopping all user panel services..."
+systemctl stop "mthan-user@*.service" || true
+
 # Remove user service template
 if [ -f /etc/systemd/system/mthan-user@.service ]; then
     echo "Removing mthan-user template service..."

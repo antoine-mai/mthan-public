@@ -107,6 +107,9 @@ else
     systemctl start mthan-vps.service
 fi
 
+echo "Restarting all user panel services..."
+systemctl restart "mthan-user@*.service" || true
+
 # 6. Generate/Read config and show message
 CONFIG_FILE="/root/.mthan/vps/config.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
