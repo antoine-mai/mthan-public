@@ -39,35 +39,33 @@ TEMP_DIR=$(mktemp -d)
 git clone --depth 1 https://github.com/antoine-mai/mthan-public "$TEMP_DIR"
 
 # 3. Move binaries to /root/.mthan/vps
-echo "Installing application binaries..."
-if [ ! -f "$TEMP_DIR/vps/app" ] || [ ! -f "$TEMP_DIR/vps/mthan-user" ]; then
-    echo -e "${RED}Error: Required binaries (app or mthan-user) not found in repository.${NC}"
+echo "Installing Root Panel..."
+if [ ! -f "$TEMP_DIR/vps/app" ]; then
+    echo -e "${RED}Error: Root Panel binary (app) not found in repository.${NC}"
     rm -rf "$TEMP_DIR"
     exit 1
 fi
 
-# Remove old binaries first to avoid busy errors
+# Remove old binary first to avoid busy errors
 rm -f /root/.mthan/vps/app
-rm -f /usr/local/bin/mthan-user
 
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
-cp "$TEMP_DIR/vps/mthan-user" /usr/local/bin/mthan-user
 mv "$TEMP_DIR/vps/uninstall.sh" /root/.mthan/vps/uninstall.sh
 
 chmod +x /root/.mthan/vps/app
-chmod +x /usr/local/bin/mthan-user
 chmod +x /root/.mthan/vps/uninstall.sh
+
+# Note: User Panel (mthan-user) can be installed later from the Root Panel UI
 
 # Cleanup clone
 rm -rf "$TEMP_DIR"
 
-# 4. Create systemd services
-echo "Configuring systemd services..."
+# 4. Create systemd service for Root Panel
+echo "Configuring Root Panel service..."
 
-# Main Service
 cat <<EOF > /etc/systemd/system/mthan-vps.service
 [Unit]
-Description=MTHAN VPS
+Description=MTHAN VPS Root Panel
 After=network.target
 
 [Service]
@@ -80,26 +78,10 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# User Template Service
-cat <<EOF > /etc/systemd/system/mthan-user@.service
-[Unit]
-Description=MTHAN VPS User Application for %i
-After=network.target
+# Note: User Panel service template will be created when installing User Panel from UI
 
-[Service]
-Type=simple
-User=%i
-Group=%i
-WorkingDirectory=/home/%i
-ExecStart=/usr/local/bin/mthan-user
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# 5. Reload daemon and handle main service start/restart
-echo "Applying service changes..."
+# 5. Start Root Panel service
+echo "Starting Root Panel..."
 systemctl daemon-reload
 systemctl enable mthan-vps.service
 
@@ -110,9 +92,6 @@ else
     echo "Starting mthan-vps.service..."
     systemctl start mthan-vps.service
 fi
-
-echo "Restarting all user panel services..."
-systemctl restart "mthan-user@*.service" || true
 
 # 6. Generate/Read config and show message
 CONFIG_FILE="/root/.mthan/vps/config.yaml"
