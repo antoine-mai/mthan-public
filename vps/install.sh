@@ -46,6 +46,10 @@ if [ ! -f "$TEMP_DIR/vps/app" ] || [ ! -f "$TEMP_DIR/vps/mthan-user" ]; then
     exit 1
 fi
 
+# Remove old binaries first to avoid busy errors
+rm -f /root/.mthan/vps/app
+rm -f /usr/local/bin/mthan-user
+
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
 cp "$TEMP_DIR/vps/mthan-user" /usr/local/bin/mthan-user
 mv "$TEMP_DIR/vps/uninstall.sh" /root/.mthan/vps/uninstall.sh
