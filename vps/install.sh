@@ -115,6 +115,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
     echo "port: 2205" > "$CONFIG_FILE"
     echo "username: root" >> "$CONFIG_FILE"
     echo "password: $PASSWORD" >> "$CONFIG_FILE"
+    echo "hostname: localhost" >> "$CONFIG_FILE"
     chmod 600 "$CONFIG_FILE"
 fi
 
