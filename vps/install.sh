@@ -40,14 +40,14 @@ git clone --depth 1 https://github.com/antoine-mai/mthan-public "$TEMP_DIR"
 
 # 3. Move binaries to /root/.mthan/vps
 echo "Installing application binaries..."
-if [ ! -f "$TEMP_DIR/vps/app" ] || [ ! -f "$TEMP_DIR/vps/user" ]; then
-    echo -e "${RED}Error: Required binaries (app or user) not found in repository.${NC}"
+if [ ! -f "$TEMP_DIR/vps/app" ] || [ ! -f "$TEMP_DIR/vps/mthan-user" ]; then
+    echo -e "${RED}Error: Required binaries (app or mthan-user) not found in repository.${NC}"
     rm -rf "$TEMP_DIR"
     exit 1
 fi
 
 mv "$TEMP_DIR/vps/app" /root/.mthan/vps/app
-cp "$TEMP_DIR/vps/user" /usr/local/bin/mthan-user
+cp "$TEMP_DIR/vps/mthan-user" /usr/local/bin/mthan-user
 mv "$TEMP_DIR/vps/uninstall.sh" /root/.mthan/vps/uninstall.sh
 
 chmod +x /root/.mthan/vps/app
