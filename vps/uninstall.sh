@@ -58,11 +58,12 @@ fi
 systemctl daemon-reload
 
 echo "Removing application binaries and data..."
-rm -f /root/.mthan/vps/app
 rm -f /usr/local/bin/mthan-user
-rm -f /root/.mthan/vps/uninstall.sh
 
-# Optional: Keep config and logs for now, or purge?
-# rm -rf /root/.mthan/vps
+# Remove the entire .mthan/vps directory
+if [ -d /root/.mthan/vps ]; then
+    echo "Removing /root/.mthan/vps directory..."
+    rm -rf /root/.mthan/vps
+fi
 
 echo -e "${GREEN}MTHAN VPS has been uninstalled.${NC}"
