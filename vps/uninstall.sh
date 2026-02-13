@@ -60,10 +60,10 @@ systemctl daemon-reload
 echo "Removing application binaries and data..."
 rm -f /usr/local/bin/mthan-user
 
-# Remove the entire .mthan/vps directory
-if [ -d /root/.mthan/vps ]; then
-    echo "Removing /root/.mthan/vps directory..."
-    rm -rf /root/.mthan/vps
+# Remove the entire .mthan directory
+if [ -d /root/.mthan ]; then
+    echo "Removing /root/.mthan directory..."
+    rm -rf /root/.mthan
 fi
 
 echo -e "${GREEN}MTHAN VPS has been uninstalled.${NC}"
