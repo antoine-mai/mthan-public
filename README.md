@@ -1,24 +1,24 @@
-# 🚀 MTHAN VPS Ecosystem
+# 🚀 MTHAN APP Ecosystem
 
 Welcome to the **MTHAN Public** repository – the official distribution hub for MTHAN cloud management tools. Our mission is to provide high-performance, beautifully designed, and developer-friendly infrastructure solutions.
 
 ---
 
-## 💎 MTHAN VPS (Control Panel)
+## 💎 MTHAN APP (Control Panel)
 
-MTHAN VPS is a lightweight yet ultra-modern management panel for Linux servers. Built with a focus on speed, aesthetics, and simplicity, it provides everything you need to manage your server environment with ease.
+MTHAN APP is a lightweight yet ultra-modern management panel for Linux servers. Built with a focus on speed, aesthetics, and simplicity, it provides everything you need to manage your server environment with ease.
 
 ### ✨ Key Features
 - **Modern UI/UX**: Premium design with full Dark/Light mode support.
 - **Unified Management**: Control your apps, users, and server services from a single hub.
+- **On-Demand Loading**: Super lightweight installer that downloads components only when needed.
 - **User Ecosystem**: Native support for independent User Panels with isolated environments.
-- **One-Command Setup**: Zero-configuration installation process.
 
 ### 🚀 Quick Start
-Install MTHAN VPS on any clean Linux server (**Ubuntu/Debian/CentOS**) by running:
+Install MTHAN APP on any clean Linux server (**Ubuntu/Debian/CentOS/Arch**) by running:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/antoine-mai/mthan-public/main/vps/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/antoine-mai/mthan-public/main/install.sh | bash
 ```
 
 ### 🖥️ Accessing the Control Panel
@@ -30,29 +30,31 @@ curl -sSL https://raw.githubusercontent.com/antoine-mai/mthan-public/main/vps/in
 
 ## 👥 MTHAN User Panel (Client Access)
 
-Starting with Version 1.0.6, the ecosystem includes a dedicated **User Application**. This allows server administrators to provide a restricted, specialized management interface for their clients.
+The ecosystem includes a dedicated **User Application**. This allows server administrators to provide a restricted, specialized management interface for their clients.
 
-- **Isolation**: Runs under individual user accounts.
-- **Portability**: Built into the same lightweight binary architecture.
-- **Automatic Setup**: Managed directly through the main Control Panel.
+- **On-Demand**: The User Panel binary is automatically downloaded only when you enable it for the first time.
+- **Isolation**: Runs under individual user accounts at `~/.mthan/user/`.
+- **Automatic Setup**: Managed directly through the main MTHAN APP interface.
 
 ---
 
 ## 🛠️ Maintenance & Uninstallation
 
-To update your installation, simply run the installer command again. To completely remove MTHAN VPS and all associated services:
+To update your installation, simply run the installer command again or use the **Reinstall** feature in the UI. To completely remove MTHAN APP and all associated services:
 
 ```bash
-/root/.mthan/vps/uninstall.sh
+/root/.mthan/root/uninstall.sh
 ```
 
 ---
 
 ## 🔒 Security & Standards
-- **Binary Integrity**: All binaries are compiled from source and distributed via this secure channel.
-- **Standardized Paths**: Application data and configurations are consistently managed under `/root/.mthan/`.
-- **Minimal Footprint**: Optimized performance for low-resource VPS environments.
+- **Clean Structure**: Application data is organized under standardized paths:
+    - Root: `/root/.mthan/root/`
+    - Users: `/home/user*/.mthan/user/`
+- **Binary Integrity**: All binaries (stored in `bin/`) are compiled from source.
+- **Minimal Footprint**: Optimized performance for low-resource cloud environments.
 
 ---
 
-&copy; 2025 MTHAN. Built with ❤️ for the cloud community.
+&copy; 2026 MTHAN. Built with ❤️ for the cloud community.
