@@ -28,16 +28,26 @@ elif [ -f /etc/arch-release ]; then
     pacman -Sy --noconfirm git curl
 fi
 
-# 0. Cleanup old Root versions
+# 0. Cleanup old versions and migration
 echo "Cleaning up old Root Panel versions..."
 
-# Backup config if exists
+# Backup config if exists (legacy or modern)
 CONFIG_BACKUP="/tmp/mthan_config_backup.yaml"
 if [ -f "/root/.mthan/root/config.yaml" ]; then
     cp "/root/.mthan/root/config.yaml" "$CONFIG_BACKUP"
+elif [ -f "/root/.mthan/vps/config.yaml" ]; then
+    cp "/root/.mthan/vps/config.yaml" "$CONFIG_BACKUP"
 fi
 
-# Only delete the root panel's folder, NOT /home/*
+# Stop and cleanup legacy service if exists
+if systemctl is-active --quiet mthan-vps.service; then
+    echo "Stopping legacy mthan-vps service..."
+    systemctl stop mthan-vps.service || true
+    systemctl disable mthan-vps.service || true
+    rm -f /etc/systemd/system/mthan-vps.service
+fi
+
+# Delete old folders
 rm -rf /root/.mthan
 rm -f /etc/systemd/system/mthan-user@.service
 
