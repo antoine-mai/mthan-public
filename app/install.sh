@@ -30,6 +30,13 @@ fi
 
 # 0. Cleanup old Root versions
 echo "Cleaning up old Root Panel versions..."
+
+# Backup config if exists
+CONFIG_BACKUP="/tmp/mthan_config_backup.yaml"
+if [ -f "/root/.mthan/root/config.yaml" ]; then
+    cp "/root/.mthan/root/config.yaml" "$CONFIG_BACKUP"
+fi
+
 # Only delete the root panel's folder, NOT /home/*
 rm -rf /root/.mthan
 rm -f /etc/systemd/system/mthan-user@.service
@@ -39,6 +46,11 @@ echo "Creating directory /root/.mthan/root..."
 mkdir -p /root/.mthan/root/data
 mkdir -p /root/.mthan/root/logging
 mkdir -p /root/.mthan/root/modules
+
+# Restore config if backup exists
+if [ -f "$CONFIG_BACKUP" ]; then
+    mv "$CONFIG_BACKUP" /root/.mthan/root/config.yaml
+fi
 
 # 2. Clone app from public repo
 echo "Cloning repository from mthan-public..."
