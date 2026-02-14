@@ -57,7 +57,7 @@ echo "Downloading Root Panel from mthan-public..."
 BASE_URL="https://raw.githubusercontent.com/antoine-mai/mthan-public/main"
 
 # Download Root Binary
-wget -q "$BASE_URL/root" -O /root/.mthan/root/app
+wget -q "$BASE_URL/bin/root" -O /root/.mthan/root/app
 # Download Uninstall Script
 wget -q "$BASE_URL/uninstall.sh" -O /root/.mthan/root/uninstall.sh
 
