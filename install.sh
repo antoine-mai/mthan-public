@@ -28,6 +28,14 @@ elif [ -f /etc/arch-release ]; then
     pacman -Sy --noconfirm git curl
 fi
 
+# Parse arguments
+IS_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" == "--reinstall" ]; then
+    IS_REINSTALL=true
+  fi
+done
+
 # 0. Cleanup old versions and migration
 echo "Cleaning up old Root Panel versions..."
 
@@ -47,8 +55,13 @@ if systemctl is-active --quiet mthan-vps.service; then
     rm -f /etc/systemd/system/mthan-vps.service
 fi
 
-# Delete old folders
-rm -rf /root/.mthan
+# Delete old folders (only if NOT a reinstall)
+if [ "$IS_REINSTALL" = false ]; then
+    echo "Performing full cleanup of /root/.mthan..."
+    rm -rf /root/.mthan
+else
+    echo "Reinstall mode: Preserving /root/.mthan directory structure..."
+fi
 rm -f /etc/systemd/system/mthan-user@.service
 
 # 1. Create target directory
