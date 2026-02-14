@@ -1,0 +1,139 @@
+#!/bin/bash
+set -e
+
+# Colors for better output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# --- INSTALL LOGIC ---
+
+echo -e "${BLUE}============================================${NC}"
+echo -e "${BLUE}   MTHAN APP INSTALLER${NC}"
+echo -e "${BLUE}============================================${NC}"
+
+# Check root
+if [ "$EUID" -ne 0 ]; then
+  echo -e "${RED}Error: This installer must be run as root.${NC}"
+  exit 1
+fi
+
+echo "Checking and installing dependencies..."
+if [ -f /etc/debian_version ]; then
+    apt-get update && apt-get install -y git curl
+elif [ -f /etc/redhat-release ]; then
+    dnf install -y git curl || yum install -y git curl
+elif [ -f /etc/arch-release ]; then
+    pacman -Sy --noconfirm git curl
+fi
+
+# 1. Create target directory
+echo "Creating directory /root/.mthan/app..."
+mkdir -p /root/.mthan/app/data
+mkdir -p /root/.mthan/app/modules
+mkdir -p /root/config
+mkdir -p /root/logging
+mkdir -p /root/htdocs
+
+# 2. Clone app from public repo
+echo "Cloning repository from mthan-public..."
+TEMP_DIR=$(mktemp -d)
+git clone --depth 1 https://github.com/antoine-mai/mthan-public "$TEMP_DIR"
+
+# 3. Move binaries to /root/.mthan/app
+echo "Installing Root Panel..."
+if [ ! -f "$TEMP_DIR/app/app" ]; then
+    echo -e "${RED}Error: Root Panel binary (app) not found in repository.${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
+fi
+
+# Remove old binary first to avoid busy errors
+rm -f /root/.mthan/app/app
+
+mv "$TEMP_DIR/app/app" /root/.mthan/app/app
+mv "$TEMP_DIR/app/uninstall.sh" /root/.mthan/app/uninstall.sh
+
+chmod +x /root/.mthan/app/app
+chmod +x /root/.mthan/app/uninstall.sh
+
+# Note: User Panel (mthan-user) can be installed later from the Root Panel UI
+
+# Cleanup clone
+rm -rf "$TEMP_DIR"
+
+# 4. Create systemd service for Root Panel
+echo "Configuring Root Panel service..."
+
+cat <<EOF > /etc/systemd/system/mthan-app.service
+[Unit]
+Description=MTHAN APP Root Panel
+After=network.target
+
+[Service]
+ExecStart=/root/.mthan/app/app
+WorkingDirectory=/root/.mthan/app
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Note: User Panel service template will be created when installing User Panel from UI
+
+# 5. Start Root Panel service
+echo "Starting Root Panel..."
+systemctl daemon-reload
+systemctl enable mthan-app.service
+
+if systemctl is-active --quiet mthan-app.service; then
+    echo "Restarting mthan-app.service..."
+    systemctl restart mthan-app.service
+else
+    echo "Starting mthan-app.service..."
+    systemctl start mthan-app.service
+fi
+
+# 6. Generate/Read config and show message
+CONFIG_FILE="/root/config/config.yaml"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Generating default configuration..."
+    PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12 ; echo '')
+    echo "port: 2205" > "$CONFIG_FILE"
+    echo "username: root" >> "$CONFIG_FILE"
+    echo "password: $PASSWORD" >> "$CONFIG_FILE"
+    echo "hostname: localhost" >> "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
+fi
+
+# Read current credentials
+USERNAME=$(grep "username:" "$CONFIG_FILE" | cut -d' ' -f2)
+PASSWORD=$(grep "password:" "$CONFIG_FILE" | cut -d' ' -f2)
+PORT=$(grep "port:" "$CONFIG_FILE" | cut -d' ' -f2)
+
+# Improved IP detection (Force IPv4)
+IP=$(curl -s -4 https://ifconfig.me || curl -s -4 https://api.ipify.org || echo "YOUR_SERVER_IP")
+
+# 6. Configure Firewall
+echo "Configuring firewall..."
+if command -v ufw >/dev/null; then
+    if ufw status | grep -q "Status: active"; then
+        echo "Opening port $PORT in UFW..."
+        ufw allow "$PORT/tcp"
+    fi
+elif command -v firewall-cmd >/dev/null; then
+    echo "Opening port $PORT in firewalld..."
+    firewall-cmd --permanent --add-port="$PORT/tcp"
+    firewall-cmd --reload
+fi
+
+echo -e "\n${GREEN}============================================${NC}"
+echo -e "${GREEN}   INSTALLATION COMPLETE${NC}"
+echo -e "${GREEN}============================================${NC}"
+echo -e "URL:        http://${IP}:${PORT}"
+echo -e "Username:   $USERNAME"
+echo -e "Password:   $PASSWORD"
+echo -e "To uninstall, run: /root/.mthan/app/uninstall.sh"
+echo -e "IMPORTANT: Ensure port ${PORT} is open in your cloud firewall (e.g., AWS/GCP/Azure console).\n"
