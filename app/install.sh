@@ -28,20 +28,24 @@ elif [ -f /etc/arch-release ]; then
     pacman -Sy --noconfirm git curl
 fi
 
+# 0. Cleanup old Root versions
+echo "Cleaning up old Root Panel versions..."
+# Only delete the root panel's folder, NOT /home/*
+rm -rf /root/.mthan
+rm -f /etc/systemd/system/mthan-user@.service
+
 # 1. Create target directory
-echo "Creating directory /root/.mthan/app..."
-mkdir -p /root/.mthan/app/data
-mkdir -p /root/.mthan/app/modules
-mkdir -p /root/config
-mkdir -p /root/logging
-mkdir -p /root/htdocs
+echo "Creating directory /root/.mthan/root..."
+mkdir -p /root/.mthan/root/data
+mkdir -p /root/.mthan/root/logging
+mkdir -p /root/.mthan/root/modules
 
 # 2. Clone app from public repo
 echo "Cloning repository from mthan-public..."
 TEMP_DIR=$(mktemp -d)
 git clone --depth 1 https://github.com/antoine-mai/mthan-public "$TEMP_DIR"
 
-# 3. Move binaries to /root/.mthan/app
+# 3. Move binaries to /root/.mthan/root
 echo "Installing Root Panel..."
 if [ ! -f "$TEMP_DIR/app/app" ]; then
     echo -e "${RED}Error: Root Panel binary (app) not found in repository.${NC}"
@@ -50,13 +54,13 @@ if [ ! -f "$TEMP_DIR/app/app" ]; then
 fi
 
 # Remove old binary first to avoid busy errors
-rm -f /root/.mthan/app/app
+rm -f /root/.mthan/root/app
 
-mv "$TEMP_DIR/app/app" /root/.mthan/app/app
-mv "$TEMP_DIR/app/uninstall.sh" /root/.mthan/app/uninstall.sh
+mv "$TEMP_DIR/app/app" /root/.mthan/root/app
+mv "$TEMP_DIR/app/uninstall.sh" /root/.mthan/root/uninstall.sh
 
-chmod +x /root/.mthan/app/app
-chmod +x /root/.mthan/app/uninstall.sh
+chmod +x /root/.mthan/root/app
+chmod +x /root/.mthan/root/uninstall.sh
 
 # Note: User Panel (mthan-user) can be installed later from the Root Panel UI
 
@@ -72,8 +76,8 @@ Description=MTHAN APP Root Panel
 After=network.target
 
 [Service]
-ExecStart=/root/.mthan/app/app
-WorkingDirectory=/root/.mthan/app
+ExecStart=/root/.mthan/root/app
+WorkingDirectory=/root/.mthan/root
 Restart=always
 User=root
 
@@ -97,7 +101,7 @@ else
 fi
 
 # 6. Generate/Read config and show message
-CONFIG_FILE="/root/config/config.yaml"
+CONFIG_FILE="/root/.mthan/root/config.yaml"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Generating default configuration..."
     PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12 ; echo '')

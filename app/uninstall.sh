@@ -15,7 +15,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Detect port from config
-CONFIG_FILE="/root/config/config.yaml"
+CONFIG_FILE="/root/.mthan/root/config.yaml"
 PORT=2205
 if [ -f "$CONFIG_FILE" ]; then
     PORT=$(grep "port:" "$CONFIG_FILE" | cut -d' ' -f2)
