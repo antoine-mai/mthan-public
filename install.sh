@@ -126,6 +126,9 @@ USERNAME=$(grep "username:" "$CONFIG_FILE" | cut -d' ' -f2)
 PASSWORD=$(grep "password:" "$CONFIG_FILE" | cut -d' ' -f2)
 PORT=$(grep "port:" "$CONFIG_FILE" | cut -d' ' -f2)
 
+# Cleanup legacy Caddyfile if exists (now moved to /etc/caddy/Caddyfile.d)
+rm -f /root/.mthan/root/Caddyfile
+
 # Improved IP detection (Force IPv4)
 IP=$(curl -s -4 https://ifconfig.me || curl -s -4 https://api.ipify.org || echo "YOUR_SERVER_IP")
 

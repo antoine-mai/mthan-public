@@ -59,6 +59,7 @@ systemctl daemon-reload
 
 echo "Removing application binaries and data..."
 rm -f /usr/local/bin/mthan-user
+rm -f /etc/caddy/Caddyfile.d/mthan.conf
 
 # Remove the entire .mthan directory
 if [ -d /root/.mthan ]; then
