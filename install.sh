@@ -39,12 +39,18 @@ done
 # 0. Cleanup old versions and migration
 echo "Cleaning up old Root Panel versions..."
 
-# Backup config if exists (legacy or modern)
+# Backup config ONLY if it's a reinstall
 CONFIG_BACKUP="/tmp/mthan_config_backup.yaml"
-if [ -f "/root/.mthan/root/config.yaml" ]; then
-    cp "/root/.mthan/root/config.yaml" "$CONFIG_BACKUP"
-elif [ -f "/root/.mthan/vps/config.yaml" ]; then
-    cp "/root/.mthan/vps/config.yaml" "$CONFIG_BACKUP"
+rm -f "$CONFIG_BACKUP"
+
+if [ "$IS_REINSTALL" = true ]; then
+    if [ -f "/root/.mthan/root/config.yaml" ]; then
+        echo "Backing up current configuration..."
+        cp "/root/.mthan/root/config.yaml" "$CONFIG_BACKUP"
+    elif [ -f "/root/.mthan/vps/config.yaml" ]; then
+        echo "Backing up legacy configuration..."
+        cp "/root/.mthan/vps/config.yaml" "$CONFIG_BACKUP"
+    fi
 fi
 
 # Stop and cleanup legacy service if exists
@@ -70,8 +76,9 @@ mkdir -p /root/.mthan/root/data
 mkdir -p /root/.mthan/root/logging
 mkdir -p /root/.mthan/root/modules
 
-# Restore config if backup exists
+# Restore config if backup exists (only happens in reinstall mode)
 if [ -f "$CONFIG_BACKUP" ]; then
+    echo "Restoring configuration..."
     mv "$CONFIG_BACKUP" /root/.mthan/root/config.yaml
 fi
 
