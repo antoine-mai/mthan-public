@@ -1,60 +1,72 @@
-# 🚀 MTHAN APP Ecosystem
+# 🚀 MTHAN VPS Platform
 
-Welcome to the **MTHAN Public** repository – the official distribution hub for MTHAN cloud management tools. Our mission is to provide high-performance, beautifully designed, and developer-friendly infrastructure solutions.
+Welcome to the **MTHAN VPS** – an ultra-modern, lightweight, and high-performance management panel designed to transform how you control your Linux infrastructure. 
+
+Built with **Go** and **React**, MTHAN provides a premium, unified experience for managing apps, users, and server services with zero overhead.
 
 ---
 
-## 💎 MTHAN APP (Control Panel)
+## 💎 Features at a Glance
 
-MTHAN APP is a lightweight yet ultra-modern management panel for Linux servers. Built with a focus on speed, aesthetics, and simplicity, it provides everything you need to manage your server environment with ease.
+*   **⚡ Lightning Fast**: Compiled Go binary for maximum performance and minimal memory footprint.
+*   **🎨 Premium UI/UX**: Sleek, responsive dashboard with native Dark/Light mode support.
+*   **🛡️ Secure Isolation**: Multi-user support with isolated environments for client panels.
+*   **📦 On-Demand Ecosystem**: Intelligent installer that only downloads what you need, when you need it.
+*   **🧩 Modules Included**: Manage Docker containers, System Services, Backups, and more from one hub.
 
-### ✨ Key Features
-- **Modern UI/UX**: Premium design with full Dark/Light mode support.
-- **Unified Management**: Control your apps, users, and server services from a single hub.
-- **On-Demand Loading**: Super lightweight installer that downloads components only when needed.
-- **User Ecosystem**: Native support for independent User Panels with isolated environments.
+---
 
-### 🚀 Quick Start
-Install MTHAN APP on any clean Linux server (**Ubuntu/Debian/CentOS/Arch**) by running:
+## 🚀 Quick Start
+
+Ensure you are running on a clean **Ubuntu, Debian, CentOS, or Arch** server, then execute:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/antoine-mai/mthan-vps/main/install.sh | bash
 ```
 
-### 🖥️ Accessing the Control Panel
+### 🖥️ Accessing the Panel
 - **URL**: `http://YOUR_SERVER_IP:2205`
 - **Port**: `2205` (Default)
-- **Security**: Root-level access required for administration.
+- **Authenticaton**: Use your existing **Linux System Users** to log in.
 
 ---
 
-## 👥 MTHAN User Panel (Client Access)
+## 🛠️ Maintenance & Repair
 
-The ecosystem includes a dedicated **User Application**. This allows server administrators to provide a restricted, specialized management interface for their clients.
-
-- **On-Demand**: The User Panel binary is automatically downloaded only when you enable it for the first time.
-- **Isolation**: Runs under individual user accounts at `~/.mthan/user/`.
-- **Automatic Setup**: Managed directly through the main MTHAN APP interface.
-
----
-
-## 🛠️ Maintenance & Uninstallation
-
-To update your installation, simply run the installer command again or use the **Reinstall** feature in the UI. To completely remove MTHAN APP and all associated services:
+### 🔄 Updating or Repairing
+If you need to update to the latest version or fix a corrupted binary while **keeping all your data and configurations**, use the repair flag:
 
 ```bash
-/root/.mthan/root/uninstall.sh
+curl -sSL https://raw.githubusercontent.com/antoine-mai/mthan-vps/main/install.sh | bash -s -- --repair
+```
+
+### 🗑️ Uninstallation
+To completely remove the MTHAN platform and its associated services:
+
+```bash
+sudo /root/.mthan/vps/uninstall.sh
 ```
 
 ---
 
-## 🔒 Security & Standards
-- **Clean Structure**: Application data is organized under standardized paths:
-    - Root: `/root/.mthan/root/`
-    - Users: `/home/user*/.mthan/user/`
-- **Binary Integrity**: All binaries (stored in `bin/`) are compiled from source.
-- **Minimal Footprint**: Optimized performance for low-resource cloud environments.
+## 📂 System Structure
+
+MTHAN follows a clean, standardized file hierarchy:
+
+| Path | Description |
+| :--- | :--- |
+| `/usr/local/bin/mthan/` | Application binaries (CPanel/VPS) |
+| `/root/.mthan/vps/` | Working directory, local configuration, and logs |
+| `/root/.mthan/vps/database/` | Infrastructure metadata and SQLite stores |
+| `/home/user*/.mthan/` | Isolated client panel data (User Ecosystem) |
 
 ---
 
-&copy; 2026 MTHAN. Built with ❤️ for the cloud community.
+## 🔒 Security Standards
+- **Binary Integrity**: All platform binaries are compiled directly for your architecture.
+- **Root-Level Precision**: Core services run with minimum required privileges where possible.
+- **Firewall Aware**: Automatically detects and configures `UFW` or `Firewalld`.
+
+---
+
+&copy; 2026 **MTHAN**. Built with ❤️ for the modern cloud.
