@@ -68,12 +68,12 @@ mkdir -p /root/.mthan/vps/database
 echo "Downloading MTHAN VPS Binary to /usr/local/bin/mthan..."
 BASE_URL="https://raw.githubusercontent.com/antoine-mai/mthan-vps/main"
 
-# Download the vps binary into the mthan folder
-wget -q "$BASE_URL/mthan-vps/vps" -O /usr/local/bin/mthan/vps
+# Download the vps binary into the mthan folder (no -q to see progress)
+wget "$BASE_URL/mthan/vps" -O /usr/local/bin/mthan/vps
 chmod +x /usr/local/bin/mthan/vps
 
 # Download Uninstall Script
-wget -q "$BASE_URL/uninstall.sh" -O /root/.mthan/vps/uninstall.sh
+wget "$BASE_URL/uninstall.sh" -O /root/.mthan/vps/uninstall.sh
 chmod +x /root/.mthan/vps/uninstall.sh
 
 # 4. Create systemd service for MTHAN VPS
