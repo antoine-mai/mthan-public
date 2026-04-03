@@ -114,6 +114,13 @@ if [ ! -f "$CONFIG_FILE" ]; then
     sleep 3
 fi
 
+# Generate random password for clean installation
+RANDOM_PASS="[kept from current config]"
+if [ "$IS_REPAIR" = false ] && [ -f "$CONFIG_FILE" ]; then
+    RANDOM_PASS=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 12)
+    sed -i "s/password: \"admin\"/password: \"$RANDOM_PASS\"/g" "$CONFIG_FILE"
+fi
+
 # Default port
 DEFAULT_PORT=2205
 PORT=$DEFAULT_PORT
@@ -160,6 +167,11 @@ else
 fi
 echo -e "${GREEN}============================================${NC}"
 echo -e "URL:        http://${IP}:${PORT}"
-echo -e "Access:     Login using your Linux system users"
+if [ "$IS_REPAIR" = false ]; then
+    echo -e "User:       root"
+    echo -e "Password:   ${RANDOM_PASS}"
+else
+    echo -e "Access:     Login using your previously configured password"
+fi
 echo -e "To uninstall, run: /root/.mthan/vps/uninstall.sh"
 echo -e "IMPORTANT: Ensure port ${PORT} is open in your cloud firewall.\n"
